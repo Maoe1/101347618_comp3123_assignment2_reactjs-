@@ -1,22 +1,48 @@
 import axios from 'axios';
 import './style.css'
-import React, {useState, useEffect} from 'react';
-import {Link, useNavigate} from 'react-router-dom'
+import React, {useState, useEffect, useRef} from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {faCHeck, faTimes, faInfoCircle} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 
-export default function Signup(props) {
+const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+
+export default function Signup() {
+
+  const [formData, setFormData] = useState({
+    user_name: '',
+    email: '',
+    password: ''
+  })
+  
+  const userRef = useRef();
+  const errRef = useRef();
+  const [errMsg, setErrMsg] = useState('');
+  
 
     const nav = useNavigate();
 
-    const [formData, setFormData] = useState({
-        user_name: '',
-        email: '',
-        password: ''
-    })
+    
 
     const SignupForm = async (event, endpoint) => {
+
         event.preventDefault()
-        console.log("signup info  : " +  JSON.stringify(formData))
-       
+        const v1 = USER_REGEX.test(formData.user_name);
+        const v2 = formData.password;
+        const v3 = EMAIL_REGEX.test(formData.email);
+        if (!v1){
+          setErrMsg("User name is Invalid")
+          return;
+        } else if (!v2){
+          setErrMsg("Password is invalid")
+          return;
+        } else if (!v3) {
+          setErrMsg("Email is Invalid")
+          return;
+        }
+
+        try{
             const base = 'https://assignment1-101347618.herokuapp.com/api'
             const url = `${base}/${endpoint}`
             const res = await axios({
@@ -25,20 +51,25 @@ export default function Signup(props) {
               data: formData,
             }).then(function (response) {
               nav('/login');
-              console.log(response);
           })
-          .catch(function (error) {
-              //handle error
-              console.log(error);
-            });
-      
-      }
+        }catch (err) {
+          if (!err?.response) {
+              setErrMsg('No Server Response');
+          } else if (err.response?.status === 409) {
+              setErrMsg('Username Taken');
+          } else {
+              setErrMsg('Registration Failed')
+          }
+        errRef.current.focus();
+    }
+    }
 
 
   return (
     <div className="Auth-form-container">
       <form className="Auth-form"  onSubmit={(e) => SignupForm(e, 'user/signup')}>
         <div className="Auth-form-content">
+        <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
           <h3 className="Auth-form-title">Sign Up</h3>
           <div className="form-group mt-3">
             <label>Username</label>

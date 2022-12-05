@@ -1,11 +1,17 @@
 import axios from 'axios';
 import './style.css'
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { useLocation, useNavigate, Link, useParams} from 'react-router-dom';
 
+
+const NAME_REGEX = /^[A-Za-z][A-Za-z0-9_]{1,29}$/
+const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 export default function Updatemployeeform() {
     let {eid }= useParams(); 
     const nav = useNavigate();
+    const userRef = useRef();
+    const errRef = useRef();
+    const [errMsg, setErrMsg] = useState('');
 
     const [formData, setFormData] = useState({
         first_name:'',
@@ -44,8 +50,21 @@ export default function Updatemployeeform() {
       }
     const UpdateEmployee = async (event) => {
       event.preventDefault();
-        console.log("Employee info  : " +  JSON.stringify(formData))
-       
+      const v1 = NAME_REGEX.test(formData.first_name)
+        const v2 = NAME_REGEX.test(formData.last_name);
+        const v3 = EMAIL_REGEX.test(formData.email);
+        if (!v1){
+          setErrMsg("First name is Invalid")
+          return;
+        } else if (!v2){
+          setErrMsg("last name is invalid")
+          return;
+        } else if (!v3) {
+          setErrMsg("Email is Invalid")
+          return;
+        }
+      
+          try{
             const base = 'https://assignment1-101347618.herokuapp.com/api/emp/employees'
             const url = `${base}/${eid}`
             const res = await axios({
@@ -55,11 +74,17 @@ export default function Updatemployeeform() {
             }).then(function (response) {
               nav('/emplist')
               console.log(response);
-          })
-          .catch(function (error) {
-              //handle error
-              console.log(error);
-            });
+            })
+          }catch (err) {
+            if (!err?.response) {
+                setErrMsg('No Server Response');
+            } else if (err.response?.status === 409) {
+                setErrMsg('email is Taken');
+            } else {
+                setErrMsg('Update Failed')
+            }
+             errRef.current.focus();
+          }
       
       }
   return (

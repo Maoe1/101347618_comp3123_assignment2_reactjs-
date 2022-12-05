@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
-import {useNavigate} from 'react-router-dom'
+import {useNavigate, useEffect} from 'react-router-dom'
 import {
   Nav,
   NavLink,
@@ -10,15 +10,21 @@ import {
   NavBtnLink,
 } from './NavbarElements';
   
-const Navbar = () => {
+const Navbar = (props) => {
   const [isLoggedin, setIsLoggedin] = useState(true);
+  const [show, setShow] = useState(false);
   const nav = useNavigate();
+
+  
+  console.log(isLoggedin )
 
   function Logout() {
       localStorage.removeItem('token-info');
       setIsLoggedin(false);
       nav('/login');
     };
+    
+
   return (
     <>
       <Nav>
@@ -30,7 +36,13 @@ const Navbar = () => {
           {/* <NavBtnLink to='/sign-in'>Sign In</NavBtnLink> */}
         </NavMenu>
         <NavBtn>
-          <button onClick={() => {Logout()}}>Sign out</button>
+        <div>
+      {
+        isLoggedin
+        ? <p>login below</p>
+        : <button onClick={Logout}>Log out</button>
+      }
+      </div>
         </NavBtn>
       </Nav>
     </>
