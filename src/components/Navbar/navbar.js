@@ -10,14 +10,12 @@ import {
   NavBtnLink,
 } from './NavbarElements';
   
-const Navbar = (props) => {
+const Navbar = () => {
   const [isLoggedin, setIsLoggedin] = useState(true);
-  const [show, setShow] = useState(false);
+
   const nav = useNavigate();
 
   
-  console.log(isLoggedin )
-
   function Logout() {
       localStorage.removeItem('token-info');
       setIsLoggedin(false);

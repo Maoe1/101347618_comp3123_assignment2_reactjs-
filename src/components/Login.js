@@ -51,9 +51,12 @@ export default function Login() {
       }
     }
   return (
+    
     <div className="Auth-form-container">
     <form className="Auth-form"  onSubmit={(e) => LoginForm(e, 'user/login')}>
       <div className="Auth-form-content">
+        Emai: johndoe@gmail.com
+        password: john123
       <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
         <h3 className="Auth-form-title">Log in</h3>
         <div className="form-group mt-3">
